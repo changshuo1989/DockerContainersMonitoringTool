@@ -1,6 +1,6 @@
 ALERT HighMemoryAlert
   IF container_memory_usage_bytes{image="swarm:latest"} > 100
-  FOR 1m
+  FOR 7200m
   WITH {}
   SUMMARY "High Memory usage for swarm container"
   DESCRIPTION "High Memory usage for swarm container on {{$labels.instance}} for container {{$labels.name}} (current value: {{$value}})"

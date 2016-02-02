@@ -22,6 +22,7 @@ prometheus:
   - "9090:9090"
  links:
   - "exporter:exporter"
+  - "cadvisor:cadvisor"
   #- "promdash:promdash"
   #- "alertmanager:alertmanager"
  labels:
@@ -117,3 +118,21 @@ alertmanager:
  command:
   - "-config.file=/alertmanager/alertmanager.conf"
   - "-notification.smtp.smarthost=HRSEmail:25"
+
+
+cadvisor:
+  image: "google/cadvisor"
+  container_name: hrs-cadvisor
+  volumes:
+    - "/:/rootfs:ro"
+    - "/var/run:/var/run:rw"
+    - "/sys:/sys:ro"
+    - "/var/lib/docker/:/var/lib/docker:ro"
+  ports:
+    - "8080:8080"
+  expose:
+    - "8080"
+  labels: 
+    - "name=cAdvisor"
+    - "description=Google Container Advisor collects metrics from host and containers"
+    - "version=latest"
