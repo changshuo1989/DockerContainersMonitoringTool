@@ -1,0 +1,113 @@
+postfix:
+ build: ./postfix
+ container_name: hrs-postfix
+ ports:
+  - "25:25"
+ volumes:
+  - /etc/ssl/certs:/etc/ssl/certs
+ environment:
+  - "EMAIL=hrstab111@gmail.com"
+  - "EMAILPASS=hrstab111"  
+  - "SYSTEM_TIMEZONE=America/New_York"
+ labels:
+  - "name=hrs-postfix"
+  - "description=SMTP Server" 
+ 
+
+prometheus:
+ image: "prom/prometheus"
+ ports:
+  - "9090:9090"
+ links:
+  - "exporter:exporter"
+  #- "promdash:promdash"
+  #- "alertmanager:alertmanager"
+ labels:
+  - "name=prometheus"
+  - "description=Core of Prometheus"
+ volumes:
+  - ./prometheus.conf:/prometheus.conf
+  - ./prometheus.rules:/prometheus.rules
+  - /etc/ssl:/etc/ssl
+ command:
+  - "-config.file=/prometheus.conf" 
+  - "-alertmanager.url=http://10.13.37.22:9093"
+
+
+
+exporter:
+ image: "prom/container-exporter"
+ ports:
+  - "9104:9104"
+ volumes:
+  - /sys/fs/cgroup:/cgroup
+  - /var/run/docker.sock:/var/run/docker.sock
+ labels:
+  - "name=exporter"
+  - "description=Exports prom data"
+ 
+
+#promdash-mysql:
+# image: "mysql"
+# ports:
+#  - "3306:3306"
+# labels:
+#  - "name=promdash-mysql"
+#  - "description=Data store for monitoring system"
+# environment:
+#  - "MYSQL_DATABASE=MonitoringDatabase"
+#  - "MYSQL_USER=test"
+#  - "MYSQL_PASSWORD=test"
+#  - "MYSQL_ROOT_PASSWORD=root"
+
+
+#mysql-initialization:
+# image: "prom/promdash"
+# links:
+#  - "promdash-mysql:promdash-mysql"
+# environment:
+#  - "DATABASE_URL=mysql2://test:test@promdash-mysql:3306/MonitoringDatabase"
+# command:
+#  - "./bin/rake promdash-mysql:migrate"
+
+sqlite3:
+ image: "prom/promdash"
+ command:
+  - "./bin/rake db:migrate"
+ volumes:
+  - "/tmp/prom:/tmp/prom"
+ environment:
+  - "DATABASE_URL=sqlite3:/tmp/prom/file.sqlite3" 
+
+promdash:
+ image: "prom/promdash"
+ ports:
+  - "3000:3000"
+ expose:
+  - "3000"
+ volumes:
+  - /tmp/prom:/tmp/prom
+ #links:
+ # - "mysql-initialization:mysql-initialization"
+ environment:
+   - "DATABASE_URL=sqlite3:/tmp/prom/file.sqlite3"
+  #- "DATABASE_URL=mysql2://test:test@promdash-mysql:3306/MonitoringDatabase"
+ labels:
+  - "name=promdash"
+  - "description=Dashboards for metrics"
+
+
+alertmanager:
+ image: "prom/alertmanager"
+ ports:
+  - "9093:9093"
+ volumes:
+  - ./alertmanager:/alertmanager
+  - /etc/ssl/certs:/etc/ssl/certs
+ net: "host"
+ labels:
+  - "name=alertmanager"
+  - "description=Manager of alerts"
+ command:
+  - "-config.file=/alertmanager/alertmanager.conf"
+  - "-notification.smtp.smarthost=HRSEmail:25"
