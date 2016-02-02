@@ -1,4 +1,4 @@
-postfix/certs/priv.key
-postfix/certs/priv.crt
-alertmanager/silences.json
+priv.key
+priv.crt
+silences.json
 certs
