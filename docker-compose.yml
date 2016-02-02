@@ -1,6 +1,7 @@
 postfix:
  build: ./postfix
  container_name: hrs-postfix
+ net: "host"
  ports:
   - "25:25"
  volumes:
@@ -31,7 +32,7 @@ prometheus:
   - /etc/ssl:/etc/ssl
  command:
   - "-config.file=/prometheus.conf" 
-  - "-alertmanager.url=http://10.13.37.22:9093"
+  - "-alertmanager.url=http://10.13.37.33:9093"
 
 
 

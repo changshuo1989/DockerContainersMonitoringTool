@@ -7,7 +7,9 @@ if [ ! "`whoami`" = "root" ]; then
 fi
 
 # Create self-signed key and certs
-${PWD}/postfix/certs/setup.sh
-
+DIR=${PWD}
+cd ${DIR}/postfix/certs/
+./setup.sh
+cd ${DIR}
 #Run Prometheus Monitoring system 
-
+docker-compose up -d
