@@ -86,7 +86,7 @@ sqlite3:
 
 promdash:
  image: "prom/promdash"
- container_name: hrs-promdash
+ container_name: hrs-promdash
  ports:
   - "3000:3000"
  expose:
